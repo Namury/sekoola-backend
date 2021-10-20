@@ -1,8 +1,6 @@
 import express from "express"
 import { baseRouter, authRouter } from "./routers";
 
-
-
 class Server{
     private app: express.Application;
     private routes: Array<baseRouter> =[];

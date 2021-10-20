@@ -10,12 +10,26 @@ export class authService {
       
   }
 
+  async FindByEmail(email:string) {
+    
+    const result = await prisma.sekolah.findUnique({
+      where: {
+        email: email
+      }
+    });
+
+    return result
+  }
+
   public index = async (req: Request, res: Response) => {
     const sekolah = await prisma.sekolah.findMany();
     res.json(sekolah);
   };
 
   public login = async (newAuth: Auth) => {
+    const email = newAuth.email;
+    const password = newAuth.password;
+
 
     return "awe";
   };

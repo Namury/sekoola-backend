@@ -12,20 +12,69 @@ generator client {
 
 model Sekolah  {
   id Int @default(autoincrement()) @id
+  uuid String @default(uuid())
   nama String
-  jenis String
-  lokasi String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  admin Admin[]
-}
-
-model Admin {
-  id Int @default(autoincrement()) @id
   email String @unique
   password String
-  sekolah Sekolah @relation(fields: [sekolahId], references:[id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tingkatan {
+  id Int @default(autoincrement()) @id
+  uuid String @default(uuid())
   sekolahId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  mataPelajaran MataPelajaran[]
+  kelas Kelas[]
+}
+
+model Kelas {
+  id Int @default(autoincrement()) @id
+  uuid String @default(uuid())
+  nama String
+  tingkatanId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  siswa Siswa[]
+
+  tingkatan Tingkatan @relation(fields: [tingkatanId], references:[id])
+}
+
+model Siswa {
+  id Int @default(autoincrement()) @id
+  uuid String @default(uuid())
+  nama String
+  NISN String
+  kelasId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  kelas Kelas @relation(fields: [kelasId], references:[id])
+}
+
+model MataPelajaran {
+  id Int @default(autoincrement()) @id
+  uuid String @default(uuid())
+  nama String
+  tingkatanId Int
+  guruId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tingkatan Tingkatan @relation(fields: [tingkatanId], references:[id])
+  guru Guru @relation(fields: [guruId], references:[id])
+}
+
+model Guru {
+  id Int @default(autoincrement()) @id
+  uuid String @default(uuid())
+  nama String
+  NIP String
+  mataPelajaran MataPelajaran[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
