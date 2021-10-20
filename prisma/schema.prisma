@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Sekolah  {
+  id Int @default(autoincrement()) @id
+  nama String
+  jenis String
+  lokasi String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  admin Admin[]
+}
+
+model Admin {
+  id Int @default(autoincrement()) @id
+  email String @unique
+  password String
+  sekolah Sekolah @relation(fields: [sekolahId], references:[id])
+  sekolahId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
