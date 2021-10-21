@@ -18,17 +18,24 @@ model Sekolah  {
   password String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  tingkatan Tingkatan[]
+  guru Guru[]
+  siswa Siswa[]
 }
 
 model Tingkatan {
   id Int @default(autoincrement()) @id
   uuid String @default(uuid())
+  nama String
   sekolahId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   mataPelajaran MataPelajaran[]
   kelas Kelas[]
+
+  sekolah Sekolah @relation(fields: [sekolahId], references: [id])
 }
 
 model Kelas {
@@ -50,10 +57,12 @@ model Siswa {
   nama String
   NISN String
   kelasId Int
+  sekolahId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   kelas Kelas @relation(fields: [kelasId], references:[id])
+  sekolah Sekolah @relation(fields: [sekolahId], references: [id])
 }
 
 model MataPelajaran {
@@ -74,7 +83,11 @@ model Guru {
   uuid String @default(uuid())
   nama String
   NIP String
-  mataPelajaran MataPelajaran[]
+  sekolahId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  mataPelajaran MataPelajaran[]
+
+  sekolah Sekolah @relation(fields: [sekolahId], references: [id])
 }

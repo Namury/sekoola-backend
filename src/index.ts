@@ -1,15 +1,15 @@
 import express from "express"
-import { baseRouter, authRouter } from "./routers";
+import { authRouter } from "./routers";
 
 class Server{
     private app: express.Application;
-    private routes: Array<baseRouter> =[];
+    private authRoute: authRouter;
 
     constructor () {
         this.app = express();
+        this.authRoute = new authRouter();
         this.configuration();
         this.routers();
-
     }
 
     public configuration(){
@@ -17,7 +17,7 @@ class Server{
     }
     
     public routers(){    
-        this.routes.push(new authRouter(this.app));
+        this.app.use('/api/user/', this.authRoute.router);
     }
     
     public start(){

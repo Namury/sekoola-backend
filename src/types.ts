@@ -5,3 +5,4 @@ export type Sekolah = {
     email: string,
     password: string,
 }
+

@@ -5,13 +5,11 @@ services:
     container_name: postgres_container
     image: postgres
     environment:
-      POSTGRES_USER: <YOUR_DB_USERNAME>
-      POSTGRES_PASSWORD: <YOUR_DB_PASSWORD>
-      PGDATA: /data/postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        PGDATA: /data/postgres
     volumes:
        - ~/db_data:/data/postgres
-    ports:
-      - "5432:5432"
     restart: unless-stopped
   
   pgadmin:

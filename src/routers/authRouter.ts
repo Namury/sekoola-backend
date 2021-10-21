@@ -1,19 +1,22 @@
-import { baseRouter } from "./baseRouter"
-import { Application } from "express"
+// import { baseRouter } from "./baseRouter"
+import { Router } from "express"
 import { authController } from "../controllers"
 
-const AuthController = new authController();
+// const AuthController = new authController();
 
-export class authRouter extends baseRouter {
-
-  constructor(app: Application) {
-    super(app, "authRoute")
+export class authRouter {
+  public router: Router;
+  private AuthController: authController;
+  
+  constructor(){
+    this.AuthController = new authController();
+    this.router = Router()
+    this.routes();
   }
-
-  configureRoutes() {
-    this.app.route(`/login`).post([AuthController.login])
-    this.app.route(`/register`).post([AuthController.register])
-    return this.app
+  
+  public routes(){
+    this.router.post('/login', this.AuthController.login)
+    this.router.post('/register', this.AuthController.register)
   }
 }
 
