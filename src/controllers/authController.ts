@@ -1,5 +1,6 @@
 import { Request, Response} from "express";
 import { authService } from '../services';
+import { response_handler, response_internal_server_error } from "../utils/responseUtil";
 
 export class authController {
   private AuthService: authService;
@@ -11,14 +12,20 @@ export class authController {
     public login = async(req: Request, res: Response) => {
       const {email, password} = req.body
       if (!(email && password)) {
-        res.status(400).send();
+        return response_internal_server_error(res)
       }
   
       try {
-        const response = await this.AuthService.login({email, password})
-        res.send(response)
+        const {status, response} = await this.AuthService.login({email, password})
+        if(status){
+          return response_handler(res, true, 200, "Logged in", {"bearer token" : response})
+        } else{
+          return response_internal_server_error(res,response)
+        }
+        
+        
       } catch (error) {
-        res.status(401).send();
+        return response_internal_server_error(res)
       }
 
     }
@@ -26,8 +33,12 @@ export class authController {
     public register = async(req: Request, res: Response) => {
       try {
         const {email, password, nama} = req.body
-      
-        res.send(await this.AuthService.register({email, password, nama}));
+        const {status, response} = await this.AuthService.register({email, password, nama})
+        if (status){
+          return response_handler(res, true, 200, "Registered", response)
+        } else {
+          return response_internal_server_error(res)
+        }
       } catch (error) {
         res.status(401).send();
       }

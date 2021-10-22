@@ -1,5 +1,4 @@
 import { PrismaClient} from '@prisma/client'
-import { Response } from 'express';
 import { Auth, Sekolah } from '../types';
 
 import * as bcrypt from "bcryptjs"
@@ -12,65 +11,37 @@ const prisma = new PrismaClient();
 
 export class authService {
 
-  construcotr() {
+  constructor() {
       
-  }
-
-  // public index
-
-  async FindByEmail(email:string) {
-    
-    try {
-      const result = await prisma.sekolah.findUnique({
-        where: {
-          email: email
-        }
-      });
-      return result
-    } catch (error) {
-      return error
-    }
-
-  }
-
-  public index = async () => {
-    return "Indexd"
   }
 
   public login = async (newAuth: Auth) => {
-    const email = newAuth.email;
-    const password = newAuth.password;
-    let sekolah;
-
-
-    //get sekolah
-    try{
-      sekolah = await prisma.sekolah.findUnique({
+    const sekolah = await prisma.sekolah.findUnique({
         where: {
-          email: email,
+          email: newAuth.email,
         }
       })
-      
-    } catch (error){
-      return error
-    }
 
-    //compare password
-    try{
-      if(sekolah != null){
-        bcrypt.compareSync(password, sekolah?.password);
-      } 
-    } catch (error) {
-      return error
-    }
+      if(!sekolah){
+        return {status:false, response:"not found"}
+      }
+
+      const checkPassword = bcrypt.compareSync(newAuth.password, sekolah?.password);
+
+      if(!checkPassword){
+        return {status:false, response:"email or password is incorrect"}
+      }
 
     const token = jwt.sign(
       { id: sekolah?.id, nama: sekolah?.nama },
       String(process.env.JWT_SECRET),
-      { expiresIn: "1h" }
+      { expiresIn: "12h" }
     );
-
-    return token;
+    const response = {
+      status: true,
+      response : token,
+    }
+    return response;
     
   };
 
@@ -84,9 +55,9 @@ export class authService {
           password: bcrypt.hashSync(newSekolah.password, 8)
         }
       })
-      return sekolah
+      return {status:true, response:sekolah}
     } catch (error){
-      return error
+      return {status:false, response:"Something went wrong"}
     }
     
   };

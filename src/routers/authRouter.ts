@@ -2,7 +2,6 @@
 import { Router } from "express"
 import { authController } from "../controllers"
 
-// const AuthController = new authController();
 
 export class authRouter {
   public router: Router;

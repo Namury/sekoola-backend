@@ -12,7 +12,7 @@ generator client {
 
 model Sekolah  {
   id Int @default(autoincrement()) @id
-  uuid String @default(uuid())
+  uuid String @default(uuid()) @unique
   nama String
   email String @unique
   password String
@@ -26,8 +26,9 @@ model Sekolah  {
 
 model Tingkatan {
   id Int @default(autoincrement()) @id
-  uuid String @default(uuid())
+  uuid String @default(uuid()) @unique
   nama String
+  urutan Int
   sekolahId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,8 +41,9 @@ model Tingkatan {
 
 model Kelas {
   id Int @default(autoincrement()) @id
-  uuid String @default(uuid())
+  uuid String @default(uuid()) @unique
   nama String
+  urutan Int
   tingkatanId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -53,7 +55,7 @@ model Kelas {
 
 model Siswa {
   id Int @default(autoincrement()) @id
-  uuid String @default(uuid())
+  uuid String @default(uuid()) @unique
   nama String
   NISN String
   kelasId Int
@@ -67,20 +69,20 @@ model Siswa {
 
 model MataPelajaran {
   id Int @default(autoincrement()) @id
-  uuid String @default(uuid())
+  uuid String @default(uuid()) @unique
   nama String
   tingkatanId Int
-  guruId Int
+  guruId Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   tingkatan Tingkatan @relation(fields: [tingkatanId], references:[id])
-  guru Guru @relation(fields: [guruId], references:[id])
+  guru Guru? @relation(fields: [guruId], references:[id])
 }
 
 model Guru {
   id Int @default(autoincrement()) @id
-  uuid String @default(uuid())
+  uuid String @default(uuid()) @unique
   nama String
   NIP String
   sekolahId Int
