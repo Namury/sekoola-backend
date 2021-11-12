@@ -111,7 +111,7 @@ export async function userRegisterSekolahService(
 
     return { status: true, user: createdUser, school: createdSchool, token };
   } catch (err: any) {
-    return { status: false, error: { message: err.message } };
+    return { status: false, error: String(err) };
   }
 }
 
