@@ -8,7 +8,12 @@ const app = express();
 const PORT: number = Number(process.env.PORT) || 3010;
 
 const allowedOrigins = [
+  "http://localhost:" + String(PORT),
+  "http://localhost:3000",
+  "http://localhost:3001",
   "https://sekoola-fe.vercel.app",
+  "https://sekoola-frontend.vercel.app",
+  "https://sekoola-frontend.vercel.app/",
   "https://sekoola-fe.vercel.app/",
   "https://https://sekoola-backend.herokuapp.com",
   "https://https://sekoola-backend.herokuapp.com/",
