@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
@@ -10,86 +10,146 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Sekolah  {
-  id Int @default(autoincrement()) @id
-  uuid String @default(uuid()) @unique
-  nama String
-  email String @unique
-  password String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  tingkatan Tingkatan[]
-  guru Guru[]
-  siswa Siswa[]
+model User {
+  id        Int             @unique @default(autoincrement())
+  uuid      String          @unique @default(uuid())
+  name      String
+  email     String          @unique
+  password  String
+  school    School          @relation(fields: schoolId, references: [id])
+  schoolId  Int
+  profile   ProfileTeacher? @relation(fields: [profileId], references: [id])
+  profileId Int?            @unique
+  role      String
+
+  Course Course[]
+
+  @@id([id, uuid])
 }
 
-model Tingkatan {
-  id Int @default(autoincrement()) @id
-  uuid String @default(uuid()) @unique
-  nama String
-  urutan Int
-  sekolahId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model School {
+  id   Int    @unique @default(autoincrement())
+  uuid String @unique
+  name String
+  user User[]
 
-  mataPelajaran MataPelajaran[]
-  kelas Kelas[]
-
-  sekolah Sekolah @relation(fields: [sekolahId], references: [id])
+  Grade          Grade[]
+  ScoreConfig ScoreConfig[]
+  @@id([id, uuid])
 }
 
-model Kelas {
-  id Int @default(autoincrement()) @id
-  uuid String @default(uuid()) @unique
-  nama String
-  urutan Int
-  tingkatanId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ProfileTeacher {
+  id     Int    @unique @default(autoincrement())
+  uuid   String @unique @default(uuid())
+  name   String
+  NIP    String
+  userId User?
 
-  siswa Siswa[]
-
-  tingkatan Tingkatan @relation(fields: [tingkatanId], references:[id])
+  @@id([id, uuid])
 }
 
-model Siswa {
-  id Int @default(autoincrement()) @id
-  uuid String @default(uuid()) @unique
-  nama String
-  NISN String
-  kelasId Int
-  sekolahId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  kelas Kelas @relation(fields: [kelasId], references:[id])
-  sekolah Sekolah @relation(fields: [sekolahId], references: [id])
+model Grade {
+  id         Int          @unique @default(autoincrement())
+  orderCount Int
+  uuid       String       @unique @default(uuid())
+  name       String
+  school     School       @relation(fields: [schoolId], references: [id])
+  schoolId   Int
+  Class      Class[]
+  RootCourse RootCourse[]
 }
 
-model MataPelajaran {
-  id Int @default(autoincrement()) @id
-  uuid String @default(uuid()) @unique
-  nama String
-  tingkatanId Int
-  guruId Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tingkatan Tingkatan @relation(fields: [tingkatanId], references:[id])
-  guru Guru? @relation(fields: [guruId], references:[id])
+model Class {
+  id         Int       @unique @default(autoincrement())
+  orderCount Int
+  uuid       String    @unique @default(uuid())
+  name       String
+  Grade      Grade     @relation(fields: [gradeId], references: [id])
+  gradeId    Int
+  Course     Course[]
+  Score      Score[]
+  Student    Student[]
 }
 
-model Guru {
-  id Int @default(autoincrement()) @id
-  uuid String @default(uuid()) @unique
-  nama String
-  NIP String
-  sekolahId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model RootCourse {
+  id      Int    @unique @default(autoincrement())
+  uuid    String @unique @default(uuid())
+  name    String
+  Grade   Grade  @relation(fields: [gradeId], references: [id])
+  gradeId Int
 
-  mataPelajaran MataPelajaran[]
+  Course Course[]
+  Score  Score[]
+}
 
-  sekolah Sekolah @relation(fields: [sekolahId], references: [id])
+model Course {
+  id           Int        @unique @default(autoincrement())
+  uuid         String     @unique @default(uuid())
+  Teacher      User       @relation(fields: [teacherId], references: [id])
+  teacherId    Int
+  RootCourse   RootCourse @relation(fields: [rootCourseId], references: [id])
+  rootCourseId Int
+  Class        Class      @relation(fields: [classId], references: [id])
+  classId      Int
+  day          String
+  timeStart    String
+  timeEnd      String
+}
+
+model ScoreConfig {
+  id           Int        @unique @default(autoincrement())
+  uuid         String     @unique @default(uuid())
+  orderCount   Int?
+  type         String
+  category     String
+  weight       Int
+  minimumScore Int
+  schoolId     Int
+  School       School     @relation(fields: [schoolId], references: [id])
+  Score        Score[]
+  ScoreRange   ScoreRange[]
+}
+
+model ScoreRange {
+  id            Int         @unique @default(autoincrement())
+  uuid          String      @unique @default(uuid())
+  letter        String      @db.Char(1)
+  from          Int
+  to            Int
+  ScoreConfig   ScoreConfig @relation(fields: [scoreConfigId], references: [id]) 
+  scoreConfigId Int
+}
+
+model Score {
+  id            Int         @unique @default(autoincrement())
+  uuid          String      @unique @default(uuid())
+  name          String
+  date          DateTime    @db.Date @default(now())
+  Course        RootCourse  @relation(fields: [courseId], references: [id])
+  courseId      Int
+  Class         Class       @relation(fields: [classId], references: [id])
+  classId       Int
+  ScoreConfig   ScoreConfig @relation(fields: [scoreConfigId], references: [id]) 
+  scoreConfigId Int
+  Student       StudentScore[]
+}
+
+model StudentScore {
+  score         Int     @default(0)
+  Student       Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId     Int
+  Score         Score   @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  scoreId       Int
+
+  @@id([studentId, scoreId])
+}
+
+model Student {
+  id      Int    @unique @default(autoincrement())
+  uuid    String @unique @default(uuid())
+  Class   Class  @relation(fields: [classId], references: [id])
+  classId Int
+  name    String
+  NISN    String @unique
+  Score   StudentScore[]
 }

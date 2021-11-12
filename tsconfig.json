@@ -1,13 +1,25 @@
 {
-    "compilerOptions": {
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "strictPropertyInitialization": false,
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "target": "es6",
-        "rootDir": "./src",
-        "outDir": "./build",
-        "strict": true
-    }
+  "compilerOptions": {
+  "target": "es6",                               
+    "module": "commonjs",                           
+    "outDir": "./dist",                            
+    "rootDir": "./src",                          
+    "strict": true,                               
+    "noUnusedLocals": true,                   
+    "esModuleInterop": true,                
+    "skipLibCheck": true,     
+    "moduleResolution": "node",                   
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl":"src",     
+  	"paths": {
+      "$routes/*": ["routes/*"],
+			"$controllers/*": ["controllers/*"],
+      "$services/*": ["services/*"],
+      "$validations/*":["validations/*"],
+			"$utils/*": ["utils/*"],
+      "$middlewares/*": ["middlewares/*"]
+		},
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules/*", "dist/*","prisma/*"]
 }
