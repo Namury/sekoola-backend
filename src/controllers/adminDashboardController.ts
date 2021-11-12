@@ -9,7 +9,7 @@ export async function adminDashboardDataCountController(
   req: Request,
   res: Response
 ) {
-  const schoolId = res.locals.jwtPayload.id;
+  const schoolId = res.locals.jwtPayload.schoolId;
   const { status, countTeacher, countStudent, countCourse, countClass, error } =
     await adminDashboardCountDataServices(Number(schoolId));
 

@@ -13,7 +13,7 @@ export async function getAllTeacherBySchoolId(
   req: Request,
   res: Response
 ): Promise<Response> {
-  const schoolId = res.locals.jwtPayload.id;
+  const schoolId = res.locals.jwtPayload.schoolId;
   const { status, teachers, error } = await getAllTeacherBySchoolService(
     Number(schoolId)
   );
