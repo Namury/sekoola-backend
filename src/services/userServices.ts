@@ -116,7 +116,8 @@ export async function userRegisterSekolahService(
 }
 
 export async function userRegisterGuruService(
-  user: RegisterGuruObject
+  user: RegisterGuruObject,
+  schoolId: number
 ): Promise<any> {
   try {
     const selectedTeacherField = {
@@ -149,7 +150,7 @@ export async function userRegisterGuruService(
         password: user.password,
         uuid: uuidv4(),
         role: "GURU",
-        schoolId: Number(user.schoolId),
+        schoolId: schoolId,
         profileId: Number(createdTeacher.id),
       },
       select: selectedUserField,

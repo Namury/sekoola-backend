@@ -26,6 +26,7 @@ export async function login(req: Request, res: Response): Promise<Response> {
 
 export async function registerSekolah(req: Request, res: Response) {
   try {
+  
     const { user, status, token, error, school } =
       await userRegisterSekolahService(req.body);
     if (status) {
@@ -40,8 +41,9 @@ export async function registerSekolah(req: Request, res: Response) {
 
 export async function registerGuru(req: Request, res: Response) {
   try {
+    const schoolId = res.locals.jwtPayload.schoolId;
     const { user, status, token, error, teacher } =
-      await userRegisterGuruService(req.body);
+      await userRegisterGuruService(req.body, schoolId);
     if (status) {
       return response_success(res, { user, token, teacher });
     } else {
