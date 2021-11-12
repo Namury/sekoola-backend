@@ -41,7 +41,7 @@ export function validateRegisterGuruRequest(
   res: Response,
   next: NextFunction
 ) {
-  const { email, password, name, NIP, schoolId } = req.body;
+  const { email, password, name, NIP } = req.body;
 
   if (!email) return response_bad_request(res, "Email is required");
   if (!validateEmail(email))
