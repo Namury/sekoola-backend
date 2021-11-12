@@ -49,6 +49,5 @@ export function validateRegisterGuruRequest(
   if (!password) return response_bad_request(res, "Password is required");
   if (!name) return response_bad_request(res, "Name is required");
   if (!NIP) return response_bad_request(res, "NIP is required");
-  if (!schoolId) return response_bad_request(res, "schoolId is required");
   next();
 }
