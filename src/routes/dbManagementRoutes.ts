@@ -15,6 +15,7 @@ import {
   getAllGrades,
   getCourseById,
   getStudentByClass,
+  registerTeacherController,
 } from "$controllers/dbManagementController";
 import { checkJwt, checkRole } from "$middlewares/authMiddleware";
 import {
@@ -111,4 +112,9 @@ dbManagementRoutes.post(
   createMassStudent
 );
 
+dbManagementRoutes.post(
+  "/teacher/register",
+  [checkJwt, checkRole("ADMIN")],
+  registerTeacherController
+);
 export default dbManagementRoutes;

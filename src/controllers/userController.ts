@@ -26,7 +26,6 @@ export async function login(req: Request, res: Response): Promise<Response> {
 
 export async function registerSekolah(req: Request, res: Response) {
   try {
-  
     const { user, status, token, error, school } =
       await userRegisterSekolahService(req.body);
     if (status) {

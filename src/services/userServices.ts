@@ -29,13 +29,14 @@ function createToken(user: any) {
   return token;
 }
 
-interface AdminResponseObject {
+interface UserResponseObject {
   token: string;
   name: string;
   role: string;
   email: string;
+  schoolId: number;
 }
-interface GuruResponseObject extends AdminResponseObject {
+interface GuruResponseObject extends UserResponseObject {
   nip: string;
 }
 
@@ -50,24 +51,22 @@ export async function userLoginService(
     });
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = createToken(user);
+      const userDetails: UserResponseObject = {
+        token: token,
+        name: user.name,
+        role: user.role,
+        email: user.email,
+        schoolId: user.schoolId,
+      };
 
       if (user.role == "ADMIN") {
-        const userDetails: AdminResponseObject = {
-          token: token,
-          name: user.name,
-          role: user.role,
-          email: user.email,
-        };
         return { status: true, userDetails };
       } else {
-        const userDetails: GuruResponseObject = {
-          token: token,
-          name: user.name,
-          role: user.role,
-          email: user.email,
+        const teacherDetails: GuruResponseObject = {
+          ...userDetails,
           nip: user.profile?.NIP || "",
         };
-        return { status: true, userDetails };
+        return { status: true, userDetails: teacherDetails };
       }
     } else {
       throw new Error("Incorrect");
@@ -111,7 +110,7 @@ export async function userRegisterSekolahService(
 
     return { status: true, user: createdUser, school: createdSchool, token };
   } catch (err: any) {
-    return { status: false, error: String(err) };
+    return { status: false, error: { message: err.message } };
   }
 }
 

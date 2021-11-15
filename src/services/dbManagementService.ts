@@ -1,7 +1,9 @@
 import { prisma } from "$utils/prisma.utils";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcrypt";
 // import { createReadStream } from "fs";
 import csv from "csvtojson";
+import { newTeacherEmail } from "$utils/mailer.utils";
 
 export async function createGradeService(
   name: string,
@@ -282,5 +284,85 @@ export async function getStudentsByClassService(classId: number) {
     return { status: true, students };
   } catch (err: any) {
     return { status: false, error: "Unable to fetch student data" };
+  }
+}
+
+interface CourseData {
+  rootCourseId: number;
+  classId: number;
+  day: string;
+  timeStart: string;
+  timeEnd: string;
+  teacherId: number;
+}
+
+interface RegisterGuruObject {
+  email: string;
+  name: string;
+  NIP: string;
+  schoolId: number;
+}
+export async function teacherRegistrationService(
+  user: RegisterGuruObject,
+  courses: CourseData[]
+) {
+  try {
+    const selectedTeacherField = {
+      id: true,
+      name: true,
+      NIP: true,
+    };
+    const createdTeacher = await prisma.profileTeacher.create({
+      data: {
+        uuid: uuidv4(),
+        name: user.name,
+        NIP: user.NIP,
+      },
+      select: selectedTeacherField,
+    });
+
+    const selectedUserField = {
+      id: true,
+      email: true,
+      name: true,
+      schoolId: true,
+    };
+
+    const rawPassword = (Math.random() + 1).toString(36).substring(7);
+    const hashedPassword = await bcrypt.hash(rawPassword, 12);
+
+    const createdUser = await prisma.user.create({
+      data: {
+        name: user.name,
+        email: user.email,
+        password: hashedPassword,
+        uuid: uuidv4(),
+        role: "GURU",
+        schoolId: Number(user.schoolId),
+        profileId: Number(createdTeacher.id),
+      },
+      select: selectedUserField,
+    });
+
+    const mailData = {
+      name: user.name,
+      email: user.email,
+      rawPassword: rawPassword,
+    };
+
+    await newTeacherEmail(mailData);
+
+    if (courses.length > 0) {
+      courses.forEach((course) => {
+        course.teacherId = createdUser.id;
+      });
+
+      const createdCourses = await prisma.course.createMany({ data: courses });
+      return { status: true, teacher: createdUser, createdCourses };
+    }
+
+    return { status: true, teacher: createdUser };
+  } catch (err: any) {
+    return { status: false, error: "Could not register new teacher!!" };
   }
 }

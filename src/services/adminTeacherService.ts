@@ -56,3 +56,41 @@ export async function teacherSubjectsService(teacherUUID: string) {
     };
   }
 }
+
+interface CourseData {
+  rootCourseId: number;
+  classId: number;
+  day: string;
+  timeStart: string;
+  timeEnd: string;
+  teacherId: number;
+}
+
+export async function addTeacherCourseService(
+  course: CourseData,
+  teacherUUID: string
+) {
+  try {
+    const teacher = await prisma.user.findUnique({
+      where: {
+        uuid: teacherUUID,
+      },
+    });
+    course.teacherId = teacher?.id || 0;
+    const createdCourse = await prisma.course.create({ data: course });
+    return { status: true, course: createdCourse };
+  } catch (err: any) {
+    return { status: false, error: "Could not add subject to teacher" };
+  }
+}
+
+export async function getTeacherProfileService(teacherUUID: string) {
+  try {
+    const teacher = await prisma.user.findUnique({
+      where: { uuid: teacherUUID },
+    });
+    return { status: true, teacher };
+  } catch (err: any) {
+    return { status: false, error: "Could not fetch teacher profile data" };
+  }
+}

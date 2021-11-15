@@ -15,6 +15,7 @@ import {
   deleteClassService,
   createMassStudentService,
   getStudentsByClassService,
+  teacherRegistrationService,
 } from "$services/dbManagementService";
 import {
   response_internal_server_error,
@@ -263,4 +264,18 @@ export async function getStudentByClass(
     return response_internal_server_error(res, error);
   }
   return response_success(res, { students });
+}
+
+export async function registerTeacherController(req: Request, res: Response) {
+  const schoolId = res.locals.jwtPayload.schoolId;
+  const { name, NIP, email, courses } = req.body;
+
+  const registerGuruObject = { name, NIP, email, schoolId };
+  const { status, error, teacher, createdCourses } =
+    await teacherRegistrationService(registerGuruObject, courses);
+
+  if (!status) {
+    return response_internal_server_error(res, error);
+  }
+  return response_success(res, { teacher, courses: createdCourses });
 }

@@ -8,6 +8,7 @@ import adminTeacherRoutes from "./adminTeacherRoutes";
 import adminCourseRoutes from "./adminCourseRoutes";
 import adminDashboardRoutes from "./adminDashboardRoutes";
 import teacherScoreRoutes from "./teacherScoreRoutes";
+import teacherPageRoutes from "./teacherPageRoutes";
 
 export default function routes(app: Express) {
   app.use("/user", userRoutes);
@@ -17,6 +18,7 @@ export default function routes(app: Express) {
   app.use("/admin/teachers", adminTeacherRoutes);
   app.use("/admin/courses", adminCourseRoutes);
   app.use("/admin/dashboard", adminDashboardRoutes);
+  app.use("/teacher", teacherPageRoutes);
   app.use("/teacher/score", teacherScoreRoutes);
   app.all("*", (req: Request, res: Response) => {
     return response_not_found(res);

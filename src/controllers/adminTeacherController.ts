@@ -1,6 +1,8 @@
 import {
+  addTeacherCourseService,
   deleteTeacherService,
   getAllTeacherBySchoolService,
+  getTeacherProfileService,
   teacherSubjectsService,
 } from "$services/adminTeacherService";
 import {
@@ -45,4 +47,45 @@ export async function getTeacherSubject(
     return response_internal_server_error(res, error);
   }
   return response_success(res, { courses });
+}
+
+export async function addTeacherCourseController(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const { teacherUUID } = req.params;
+
+  const { rootCourseId, classId, day, timeStart, timeEnd, teacherId } =
+    req.body;
+  const courseData = {
+    rootCourseId,
+    classId,
+    day,
+    timeStart,
+    timeEnd,
+    teacherId,
+  };
+  const { status, course, error } = await addTeacherCourseService(
+    courseData,
+    teacherUUID
+  );
+
+  if (!status) {
+    return response_internal_server_error(res, error);
+  }
+  return response_success(res, { course });
+}
+
+export async function getTeacherProfileController(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const { teacherUUID } = req.params;
+  const { status, teacher, error } = await getTeacherProfileService(
+    teacherUUID
+  );
+  if (!status) {
+    return response_internal_server_error(res, error);
+  }
+  return response_success(res, { teacher });
 }
