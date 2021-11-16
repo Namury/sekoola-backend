@@ -11,7 +11,20 @@ export async function getAllTeacherBySchoolService(schoolId: number) {
         profile: true,
       },
     });
-    return { status: true, teachers };
+
+    const returnTeachers = teachers.map((teacher) => {
+      return {
+        id: teacher.id,
+        uuid: teacher.uuid,
+        name: teacher.name,
+        email: teacher.email,
+        schoolId: teacher.schoolId,
+        NIP: teacher.profile?.NIP,
+        role: teacher.role,
+      };
+    });
+
+    return { status: true, teachers: returnTeachers };
   } catch (err: any) {
     return { status: false, error: err };
   }
@@ -44,11 +57,20 @@ export async function teacherSubjectsService(teacherUUID: string) {
       },
       include: {
         RootCourse: true,
-        Class: true,
+        Class: { include: { Grade: true } },
       },
     });
 
-    return { status: true, courses };
+    const formattedCourses = courses.map((course) => {
+      return {
+        id: course.id,
+        matpel: course.RootCourse.name,
+        tingkatan: course.Class.Grade.name,
+        kelas: course.Class.name,
+      };
+    });
+
+    return { status: true, courses: formattedCourses };
   } catch (err: any) {
     return {
       status: false,

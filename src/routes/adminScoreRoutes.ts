@@ -1,19 +1,24 @@
 import {
   createScore,
   createScoreConfig,
+  createScoreRange,
   deleteScore,
   deleteScoreConfig,
+  deleteScoreRange,
   editScore,
   editScoreConfig,
+  editScoreRange,
   getAffectiveScore,
   getCognitiveScore,
   getPsychomotorScore,
   getScoreConfig,
+  getScoreRange,
 } from "$controllers/scoreController";
 import { checkJwt, checkRole } from "$middlewares/authMiddleware";
 import {
   validateScoreRequest,
   validateScoreConfigRequest,
+  validateScoreRangeRequest,
 } from "$validations/scoreValidation";
 import express from "express";
 
@@ -77,6 +82,28 @@ adminScoreRoutes.delete(
   "/:scoreId",
   [checkJwt, checkRole("ADMIN")],
   deleteScore
+);
+
+adminScoreRoutes.get("/range", [checkJwt, checkRole("ADMIN")], getScoreRange);
+
+adminScoreRoutes.post(
+  "/range",
+  [checkJwt, checkRole("ADMIN")],
+  validateScoreRangeRequest,
+  createScoreRange
+);
+
+adminScoreRoutes.delete(
+  "/range/:scoreRangeId",
+  [checkJwt, checkRole("ADMIN")],
+  deleteScoreRange
+);
+
+adminScoreRoutes.put(
+  "/range/:scoreRangeId",
+  [checkJwt, checkRole("ADMIN")],
+  validateScoreRangeRequest,
+  editScoreRange
 );
 
 export default adminScoreRoutes;

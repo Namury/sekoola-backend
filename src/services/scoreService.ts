@@ -227,7 +227,7 @@ export async function editStudentScoreService(
   studentId: number
 ): Promise<any> {
   try {
-    const createdStudentScore = await prisma.studentScore.update({
+    const editedStudentScore = await prisma.studentScore.update({
       where: {
         studentId_scoreId: {
           studentId,
@@ -239,7 +239,7 @@ export async function editStudentScoreService(
       },
     });
 
-    return { status: true, scoreResult: createdStudentScore };
+    return { status: true, scoreResult: editedStudentScore };
   } catch (err: any) {
     //change error message
     return { status: false, error: String(err) };
@@ -251,7 +251,7 @@ export async function deleteStudentScoreService(
   studentId: number
 ): Promise<any> {
   try {
-    const createdStudentScore = await prisma.studentScore.delete({
+    const deletedStudentScore = await prisma.studentScore.delete({
       where: {
         studentId_scoreId: {
           studentId,
@@ -260,7 +260,7 @@ export async function deleteStudentScoreService(
       },
     });
 
-    return { status: true, scoreResult: createdStudentScore };
+    return { status: true, scoreResult: deletedStudentScore };
   } catch (err: any) {
     //change error message
     return { status: false, error: String(err) };
@@ -283,26 +283,20 @@ export async function getScoreDetailByScoreIdService(scoreId: string) {
 }
 
 async function scoreStat(scoreId: number) {
-  try {
-    const stat = await prisma.studentScore.aggregate({
-      where: {
-        scoreId,
-      },
-      _avg: {
-        score: true,
-      },
-      _min: {
-        score: true,
-      },
-      _max: {
-        score: true,
-      },
-    });
-
-    return stat;
-  } catch (error) {
-    return error;
-  }
+  return await prisma.studentScore.aggregate({
+    where: {
+      scoreId,
+    },
+    _avg: {
+      score: true,
+    },
+    _min: {
+      score: true,
+    },
+    _max: {
+      score: true,
+    },
+  });
 }
 
 export async function getScoreDetailByClassIdService(
@@ -336,26 +330,101 @@ export async function getScoreDetailByClassIdService(
             const stat = await scoreStat(score.id);
 
             return {
-              ...score,
-              stat: stat,
+              id: score.id,
+              category: scoreDet.category,
+              name: score.name,
+              average: stat._avg.score,
+              maximum: stat._max.score,
+              minimum: stat._min.score,
             };
           })
         );
-        return {
-          id: scoreDet.id,
-          uuid: scoreDet.uuid,
-          orderCount: scoreDet.orderCount,
-          type: scoreDet.type,
-          category: scoreDet.category,
-          weight: scoreDet.weight,
-          minimumScore: scoreDet.minimumScore,
-          schoolId: scoreDet.schoolId,
-          Scores: mappedScores,
-        };
+        return mappedScores;
       })
     );
 
     return { status: true, scoreDetail: scoreDetailStat };
+  } catch (err: any) {
+    return { status: false, error: String(err) };
+  }
+}
+
+export async function createScoreRangeService(
+  schoolId: number,
+  letter: string,
+  from: number,
+  to: number
+): Promise<any> {
+  try {
+    const createdScoreRange = await prisma.scoreRange.create({
+      data: {
+        uuid: uuidv4(),
+        schoolId,
+        letter,
+        from,
+        to,
+      },
+    });
+
+    return { status: true, scoreRange: createdScoreRange };
+  } catch (err: any) {
+    console.log(err);
+    return { status: false, error: "Unable to create Score Config" };
+  }
+}
+
+export async function editScoreRangeService(
+  scoreRangeId: string,
+  schoolId: number,
+  letter: string,
+  from: number,
+  to: number
+): Promise<any> {
+  try {
+    const createdScoreRange = await prisma.scoreRange.update({
+      where: {
+        uuid: scoreRangeId,
+      },
+      data: {
+        uuid: uuidv4(),
+        schoolId,
+        letter,
+        from,
+        to,
+      },
+    });
+
+    return { status: true, scoreRange: createdScoreRange };
+  } catch (err: any) {
+    console.log(err);
+    return { status: false, error: "Unable to create Score Config" };
+  }
+}
+
+export async function deleteScoreRangeService(
+  scoreRangeId: string
+): Promise<any> {
+  try {
+    const deletedScoreRange = await prisma.scoreRange.delete({
+      where: {
+        uuid: scoreRangeId,
+      },
+    });
+
+    return { status: true, scoreRange: deletedScoreRange };
+  } catch (err: any) {
+    //change error message
+    return { status: false, error: String(err) };
+  }
+}
+
+export async function getScoreRangeService(schoolId: number) {
+  try {
+    const scoreRange = await prisma.scoreRange.findMany({
+      where: { schoolId },
+    });
+
+    return { status: true, scoreRange };
   } catch (err: any) {
     return { status: false, error: String(err) };
   }

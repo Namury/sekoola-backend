@@ -1,11 +1,14 @@
 import {
   createScoreConfigService,
+  createScoreRangeService,
   createScoreService,
   createStudentScoreService,
   deleteScoreConfigService,
+  deleteScoreRangeService,
   deleteScoreService,
   deleteStudentScoreService,
   editScoreConfigService,
+  editScoreRangeService,
   editScoreService,
   editStudentScoreService,
   getAffectiveScoreService,
@@ -14,6 +17,7 @@ import {
   getScoreConfigService,
   getScoreDetailByClassIdService,
   getScoreDetailByScoreIdService,
+  getScoreRangeService,
 } from "$services/scoreService";
 import {
   response_internal_server_error,
@@ -268,6 +272,78 @@ export async function getScoreDetailByClassId(
 
   if (status) {
     return response_success(res, scoreDetail);
+  } else {
+    return response_internal_server_error(res, error);
+  }
+}
+
+export async function createScoreRange(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const schoolId = res.locals.jwtPayload.schoolId;
+  const { letter, from, to } = req.body;
+  const { status, scoreRange, error } = await createScoreRangeService(
+    schoolId,
+    letter,
+    from,
+    to
+  );
+
+  if (status) {
+    return response_success(res, scoreRange);
+  } else {
+    return response_internal_server_error(res, error);
+  }
+}
+
+export async function editScoreRange(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const scoreRangeId = req.params.scoreRangeId;
+  const schoolId = res.locals.jwtPayload.schoolId;
+  const { letter, from, to } = req.body;
+  const { status, scoreRange, error } = await editScoreRangeService(
+    scoreRangeId,
+    schoolId,
+    letter,
+    from,
+    to
+  );
+
+  if (status) {
+    return response_success(res, scoreRange);
+  } else {
+    return response_internal_server_error(res, error);
+  }
+}
+
+export async function deleteScoreRange(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const scoreRangeId = req.params.scoreRangeId;
+  const { status, scoreRange, error } = await deleteScoreRangeService(
+    scoreRangeId
+  );
+
+  if (status) {
+    return response_success(res, scoreRange);
+  } else {
+    return response_internal_server_error(res, error);
+  }
+}
+
+export async function getScoreRange(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const schoolId = res.locals.jwtPayload.schoolId;
+  const { status, scoreRange, error } = await getScoreRangeService(schoolId);
+
+  if (status) {
+    return response_success(res, scoreRange);
   } else {
     return response_internal_server_error(res, error);
   }

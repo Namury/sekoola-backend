@@ -280,6 +280,9 @@ export async function getStudentsByClassService(classId: number) {
       where: {
         classId,
       },
+      orderBy: {
+        name: "asc",
+      },
     });
     return { status: true, students };
   } catch (err: any) {

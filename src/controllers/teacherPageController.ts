@@ -1,5 +1,6 @@
 import {
   getClassesByTeacherService,
+  getCoursesByTeacherService,
   getGradesByTeacherService,
 } from "$services/teacherPageService";
 import {
@@ -16,7 +17,7 @@ export async function getGradesByTeacher(
   const teacherId = res.locals.jwtPayload.id;
   const { status, grades, error } = await getGradesByTeacherService(teacherId);
   if (status) {
-    return response_success(res, { grades });
+    return response_success(res, grades);
   } else {
     return response_internal_server_error(res, error);
   }
@@ -33,7 +34,22 @@ export async function getClassesByTeacher(
     gradeId
   );
   if (status) {
-    return response_success(res, { classes });
+    return response_success(res, classes);
+  } else {
+    return response_internal_server_error(res, error);
+  }
+}
+
+export async function getCoursesByTeacher(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const teacherId = res.locals.jwtPayload.id;
+  const { status, courses, error } = await getCoursesByTeacherService(
+    teacherId
+  );
+  if (status) {
+    return response_success(res, courses);
   } else {
     return response_internal_server_error(res, error);
   }

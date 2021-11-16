@@ -42,3 +42,14 @@ export function validateStudentScoreRequest(
     return response_bad_request(res, "scoreId is required");
   next();
 }
+
+export function validateScoreRangeRequest(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if (!req.body.letter) return response_bad_request(res, "letter is required");
+  if (!req.body.from) return response_bad_request(res, "from is required");
+  if (!req.body.to) return response_bad_request(res, "to is required");
+  next();
+}

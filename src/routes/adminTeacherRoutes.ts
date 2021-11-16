@@ -3,6 +3,7 @@ import {
   deleteTeacher,
   getAllTeacherBySchoolId,
   getTeacherProfileController,
+  getTeacherSubject,
 } from "$controllers/adminTeacherController";
 import { checkJwt, checkRole } from "$middlewares/authMiddleware";
 import express from "express";
@@ -14,7 +15,11 @@ adminTeacherRoutes.get(
   getAllTeacherBySchoolId
 );
 
-adminTeacherRoutes.get("/courses/:teacherUUID", [checkJwt, checkRole("ADMIN")]);
+adminTeacherRoutes.get(
+  "/courses/:teacherUUID",
+  [checkJwt, checkRole("ADMIN")],
+  getTeacherSubject
+);
 adminTeacherRoutes.delete(
   "/:teacherUUID",
   [checkJwt, checkRole("ADMIN")],

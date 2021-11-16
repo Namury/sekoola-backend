@@ -70,3 +70,20 @@ export async function getClassesByTeacherService(
     return { status: false, error: "Unable to fetch class data" };
   }
 }
+
+export async function getCoursesByTeacherService(teacherId: number) {
+  try {
+    const courses = await prisma.course.findMany({
+      where: {
+        teacherId,
+      },
+      include: {
+        RootCourse: true,
+        Class: true,
+      },
+    });
+    return { status: true, courses };
+  } catch (err: any) {
+    return { status: false, error: "Unable to fetch course data" };
+  }
+}

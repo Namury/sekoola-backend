@@ -23,7 +23,7 @@ function createToken(user: any) {
     { id: user.id, email: user.email, schoolId: user.schoolId },
     process.env.JWT_SECRET_TOKEN?.toString() || "",
     {
-      expiresIn: "2h",
+      expiresIn: "24h",
     }
   );
   return token;
