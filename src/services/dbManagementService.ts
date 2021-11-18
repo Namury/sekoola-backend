@@ -131,7 +131,7 @@ export async function editCourseService(
 
 export async function deleteCourseService(courseId: number): Promise<any> {
   try {
-    await prisma.course.delete({
+    await prisma.rootCourse.delete({
       where: { id: courseId },
     });
     return { status: true, message: "course deleted successfuly" };

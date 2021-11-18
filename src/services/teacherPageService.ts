@@ -2,29 +2,34 @@ import { prisma } from "$utils/prisma.utils";
 
 export async function getGradesByTeacherService(teacherId: number) {
   try {
-    const courses = await prisma.course.findMany({
+    const grades = await prisma.grade.findMany({
       where: {
-        teacherId,
-      },
-    });
-
-    const grades = await Promise.all(
-      courses.map(async (course) => {
-        const grade = await prisma.grade.findMany({
-          where: {
-            Class: {
-              every: {
-                id: course.classId,
+        Class: {
+          some: {
+            Course: {
+              some: {
+                teacherId: {
+                  equals: teacherId,
+                },
               },
             },
           },
-          include: {
-            Class: true,
+        },
+      },
+      include: {
+        Class: {
+          where: {
+            Course: {
+              some: {
+                teacherId: {
+                  equals: teacherId,
+                },
+              },
+            },
           },
-        });
-        return grade;
-      })
-    );
+        },
+      },
+    });
 
     return { status: true, grades };
   } catch (err: any) {
@@ -37,33 +42,51 @@ export async function getClassesByTeacherService(
   gradeId: string
 ) {
   try {
-    const courses = await prisma.course.findMany({
+    const classes = await prisma.class.findMany({
       where: {
-        teacherId,
+        Course: {
+          some: {
+            teacherId: {
+              equals: teacherId,
+            },
+          },
+        },
+        Grade: {
+          uuid: gradeId,
+        },
+      },
+      include: {
+        Student: true,
       },
     });
 
-    const classes = await Promise.all(
-      courses.map(async (course) => {
-        const clas = await prisma.class.findMany({
-          where: {
-            Course: {
-              every: {
-                id: course.id,
-              },
-            },
-            Grade: {
-              uuid: gradeId,
-            },
-          },
-          include: {
-            Student: true,
-          },
-        });
+    // const courses = await prisma.course.findMany({
+    //   where: {
+    //     teacherId,
+    //   },
+    // });
 
-        return clas;
-      })
-    );
+    // const classes = await Promise.all(
+    //   courses.map(async (course) => {
+    //     const clas = await prisma.class.findMany({
+    //       where: {
+    //         Course: {
+    //           every: {
+    //             id: course.id,
+    //           },
+    //         },
+    //         Grade: {
+    //           uuid: gradeId,
+    //         },
+    //       },
+    //       include: {
+    //         Student: true,
+    //       },
+    //     });
+
+    //     return clas;
+    //   })
+    // );
 
     return { status: true, classes };
   } catch (err: any) {

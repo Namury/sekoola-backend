@@ -110,7 +110,7 @@ export async function userRegisterSekolahService(
 
     return { status: true, user: createdUser, school: createdSchool, token };
   } catch (err: any) {
-    return { status: false, error: { message: err.message } };
+    return { status: false, error: { message: "Register Failed" } };
   }
 }
 
@@ -159,6 +159,6 @@ export async function userRegisterGuruService(
 
     return { status: true, user: createdUser, teacher: createdTeacher, token };
   } catch (err: any) {
-    return { status: false, error: { message: err.message } };
+    return { status: false, error: { message: "Register Failed" } };
   }
 }
