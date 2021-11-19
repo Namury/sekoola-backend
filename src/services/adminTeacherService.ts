@@ -67,6 +67,9 @@ export async function teacherSubjectsService(teacherUUID: string) {
         matpel: course.RootCourse.name,
         tingkatan: course.Class.Grade.name,
         kelas: course.Class.name,
+        day: course.day,
+        timeStart: course.timeStart,
+        timeEnd: course.timeEnd
       };
     });
 
