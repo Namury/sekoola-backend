@@ -68,8 +68,7 @@ export async function teacherSubjectsService(teacherUUID: string) {
         tingkatan: course.Class.Grade.name,
         kelas: course.Class.name,
         day: course.day,
-        timeStart: course.timeStart,
-        timeEnd: course.timeEnd
+        time: String(course.timeStart) + " - " + String(course.timeEnd)
       };
     });
 
