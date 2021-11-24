@@ -60,34 +60,6 @@ export async function getClassesByTeacherService(
       },
     });
 
-    // const courses = await prisma.course.findMany({
-    //   where: {
-    //     teacherId,
-    //   },
-    // });
-
-    // const classes = await Promise.all(
-    //   courses.map(async (course) => {
-    //     const clas = await prisma.class.findMany({
-    //       where: {
-    //         Course: {
-    //           every: {
-    //             id: course.id,
-    //           },
-    //         },
-    //         Grade: {
-    //           uuid: gradeId,
-    //         },
-    //       },
-    //       include: {
-    //         Student: true,
-    //       },
-    //     });
-
-    //     return clas;
-    //   })
-    // );
-
     return { status: true, classes };
   } catch (err: any) {
     return { status: false, error: "Unable to fetch class data" };
@@ -96,16 +68,41 @@ export async function getClassesByTeacherService(
 
 export async function getCoursesByTeacherService(teacherId: number) {
   try {
-    const courses = await prisma.course.findMany({
+    const courses = await prisma.class.findMany({
       where: {
-        teacherId,
+        Course: {
+          some: {
+            teacherId,
+          },
+        },
       },
       include: {
-        RootCourse: true,
-        Class: true,
+        Course: {
+          include: {
+            RootCourse: true,
+          },
+        },
+        Grade: true,
       },
     });
-    return { status: true, courses };
+
+    const formattedCourses = courses.map((classes) => {
+      const course = classes.Course.map((course) => {
+        return {
+          courseId: course.id,
+          courseUuid: course.uuid,
+          nama: course.RootCourse.name,
+        };
+      });
+      return {
+        classId: classes.id,
+        classUuid: classes.uuid,
+        gradeId: classes.Grade.id,
+        gradeUuid: classes.Grade.uuid,
+        course: course,
+      };
+    });
+    return { status: true, courses: formattedCourses };
   } catch (err: any) {
     return { status: false, error: "Unable to fetch course data" };
   }
