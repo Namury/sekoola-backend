@@ -2,12 +2,16 @@ import {
   login,
   registerSekolah,
   registerGuru,
+  editAdminProfile,
+  editTeacherProfile,
 } from "$controllers/userController";
 import express from "express";
 import {
   validateLoginRequest,
   validateRegisterSekolahRequest,
   validateRegisterGuruRequest,
+  validateEditAdminProfileRequest,
+  validateEditTeacherProfileRequest,
 } from "$validations/userValidation";
 import { checkJwt, checkRole } from "$middlewares/authMiddleware";
 
@@ -19,10 +23,26 @@ userRoutes.post(
   validateRegisterSekolahRequest,
   registerSekolah
 );
+
 userRoutes.post(
   "/register/guru",
   [checkJwt, checkRole("ADMIN")],
   validateRegisterGuruRequest,
   registerGuru
 );
+
+userRoutes.put(
+  "/edit/admin",
+  [checkJwt, checkRole("ADMIN")],
+  validateEditAdminProfileRequest,
+  editAdminProfile
+);
+
+userRoutes.put(
+  "/edit/teacher",
+  [checkJwt, checkRole("GURU")],
+  validateEditTeacherProfileRequest,
+  editTeacherProfile
+);
+
 export default userRoutes;

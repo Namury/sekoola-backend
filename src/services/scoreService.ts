@@ -307,7 +307,7 @@ export async function getScoreDetailByClassIdService(
     const scoreDetail = await prisma.scoreConfig.findMany({
       where: {
         Score: {
-          every: {
+          some: {
             Course: {
               uuid: courseId,
             },

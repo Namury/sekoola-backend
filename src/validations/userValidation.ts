@@ -51,3 +51,28 @@ export function validateRegisterGuruRequest(
   if (!NIP) return response_bad_request(res, "NIP is required");
   next();
 }
+
+export function validateEditAdminProfileRequest(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { email, name } = req.body;
+
+  if (!email) return response_bad_request(res, "Email is required");
+  if (!validateEmail(email))
+    return response_bad_request(res, "Email provided is not a correct form");
+  if (!name) return response_bad_request(res, "Name is required");
+  next();
+}
+
+export function validateEditTeacherProfileRequest(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { NIP, name } = req.body;
+  if (!NIP) return response_bad_request(res, "NIP is required");
+  if (!name) return response_bad_request(res, "Name is required");
+  next();
+}

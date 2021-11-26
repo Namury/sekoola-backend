@@ -162,3 +162,94 @@ export async function userRegisterGuruService(
     return { status: false, error: { message: "Register Failed" } };
   }
 }
+
+export async function editAdminProfileService(
+  userId: number,
+  schoolId: number,
+  name: string,
+  email: string,
+  password?: string
+): Promise<any> {
+  try {
+    if (password != null) {
+      password = await bcrypt.hash(password, 12);
+    }
+    const user = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: name,
+        email: email,
+        password: password,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        schoolId: true,
+        profileId: true,
+      },
+    });
+
+    const school = await prisma.school.update({
+      where: {
+        id: schoolId,
+      },
+      data: {
+        name: name,
+      },
+    });
+
+    return { status: true, data: { user, school } };
+  } catch (err: any) {
+    return { status: false, error: "Unable to update admin data" };
+  }
+}
+
+export async function editTeacherProfileService(
+  userId: number,
+  name: string,
+  NIP: string,
+  password?: string
+): Promise<any> {
+  try {
+    if (password != null) {
+      password = await bcrypt.hash(password, 12);
+    }
+    const user = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: name,
+        password: password,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        schoolId: true,
+        profileId: true,
+      },
+    });
+
+    if (user.profileId != null) {
+      const teacher = await prisma.profileTeacher.update({
+        where: {
+          id: user.profileId,
+        },
+        data: {
+          name: name,
+          NIP: NIP,
+        },
+      });
+
+      return { status: true, data: { user, teacher } };
+    } else {
+      return { status: false, error: "Unable to update admin data" };
+    }
+  } catch (err: any) {
+    return { status: false, error: "Unable to update admin data" };
+  }
+}
