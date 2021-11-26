@@ -168,12 +168,18 @@ export async function editAdminProfileService(
   schoolId: number,
   name: string,
   email: string,
-  password?: string
+  password?: string,
+  oldPassword?: string
 ): Promise<any> {
   try {
-    if (password != null) {
+    const checkUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (password && oldPassword && checkUser) {
+      if (!(await bcrypt.compare(oldPassword, checkUser.password))) {
+        return { status: false, error: "Wrong old password" };
+      }
       password = await bcrypt.hash(password, 12);
     }
+
     const user = await prisma.user.update({
       where: {
         id: userId,
@@ -211,12 +217,18 @@ export async function editTeacherProfileService(
   userId: number,
   name: string,
   NIP: string,
-  password?: string
+  password?: string,
+  oldPassword?: string
 ): Promise<any> {
   try {
-    if (password != null) {
+    const checkUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (password && oldPassword && checkUser) {
+      if (!(await bcrypt.compare(oldPassword, checkUser.password))) {
+        return { status: false, error: "Wrong old password" };
+      }
       password = await bcrypt.hash(password, 12);
     }
+
     const user = await prisma.user.update({
       where: {
         id: userId,

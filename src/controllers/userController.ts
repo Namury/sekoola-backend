@@ -61,14 +61,15 @@ export async function editAdminProfile(
 ): Promise<Response> {
   const userId = res.locals.jwtPayload.id;
   const schoolId = res.locals.jwtPayload.schoolId;
-  const { name, email, password } = req.body;
+  const { name, email, password, oldPassword } = req.body;
 
   const { status, data, error } = await editAdminProfileService(
     userId,
     schoolId,
     name,
     email,
-    password
+    password,
+    oldPassword
   );
 
   if (status) {
@@ -83,13 +84,14 @@ export async function editTeacherProfile(
   res: Response
 ): Promise<Response> {
   const userId = res.locals.jwtPayload.id;
-  const { name, NIP, password } = req.body;
+  const { name, NIP, password, oldPassword } = req.body;
 
   const { status, data, error } = await editTeacherProfileService(
     userId,
     name,
     NIP,
-    password
+    password,
+    oldPassword
   );
 
   if (status) {
