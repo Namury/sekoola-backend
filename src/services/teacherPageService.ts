@@ -71,7 +71,7 @@ export async function getCoursesByTeacherService(teacherId: number) {
     const courses = await prisma.class.findMany({
       where: {
         Course: {
-          every: {
+          some: {
             teacherId,
           },
         },
