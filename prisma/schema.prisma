@@ -80,7 +80,6 @@ model RootCourse {
   gradeId Int
 
   Course Course[]
-  Score  Score[]
 }
 
 model Course {
@@ -95,6 +94,8 @@ model Course {
   day          String
   timeStart    String
   timeEnd      String
+
+  Score  Score[]
 }
 
 model ScoreConfig {
@@ -125,7 +126,7 @@ model Score {
   uuid          String      @unique @default(uuid())
   name          String
   date          DateTime    @db.Date @default(now())
-  Course        RootCourse  @relation(fields: [courseId], references: [id])
+  Course        Course  @relation(fields: [courseId], references: [id])
   courseId      Int
   Class         Class       @relation(fields: [classId], references: [id])
   classId       Int
