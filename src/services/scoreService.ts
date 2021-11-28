@@ -273,6 +273,16 @@ export async function getScoreDetailByScoreIdService(scoreId: string) {
       where: { uuid: scoreId },
       include: {
         Student: true,
+        Class: {
+          select: {
+            name: true,
+            id: true,
+            uuid: true,
+          },
+          include: {
+            Student: true,
+          },
+        },
       },
     });
 
@@ -304,46 +314,50 @@ export async function getScoreDetailByClassIdService(
   courseId: string
 ) {
   try {
-    const scoreDetail = await prisma.scoreConfig.findMany({
+    const scoreDetail = await prisma.score.findMany({
       where: {
-        Score: {
-          some: {
-            Course: {
-              uuid: courseId,
-            },
-            Class: {
-              uuid: classId,
-            },
-          },
+        Course: {
+          uuid: courseId,
+        },
+        Class: {
+          uuid: classId,
         },
       },
       include: {
-        Score: true,
+        ScoreConfig: true,
+        Class: true,
+        Course: true,
       },
+      orderBy: [
+        {
+          ScoreConfig: { category: "asc" },
+        },
+        {
+          date: "asc",
+        },
+      ],
     });
 
-    const scoreDetailStat = await Promise.all(
+    const mappedScoreDetail = await Promise.all(
       scoreDetail.map(async (scoreDet) => {
-        const scores = scoreDet.Score;
-        const mappedScores = await Promise.all(
-          scores.map(async (score) => {
-            const stat = await scoreStat(score.id);
-
-            return {
-              id: score.id,
-              category: scoreDet.category,
-              name: score.name,
-              average: stat._avg.score,
-              maximum: stat._max.score,
-              minimum: stat._min.score,
-            };
-          })
-        );
-        return mappedScores;
+        const stat = await scoreStat(scoreDet.id);
+        return {
+          id: scoreDet.id,
+          uuid: scoreDet.uuid,
+          category: scoreDet.ScoreConfig.category,
+          name: scoreDet.name,
+          average: stat._avg.score,
+          maximum: stat._max.score,
+          minimum: stat._min.score,
+          classId: scoreDet.classId,
+          classUuid: scoreDet.Class.uuid,
+          courseId: scoreDet.courseId,
+          courseUuid: scoreDet.Course.uuid,
+        };
       })
     );
 
-    return { status: true, scoreDetail: scoreDetailStat };
+    return { status: true, scoreDetail: mappedScoreDetail };
   } catch (err: any) {
     return { status: false, error: String(err) };
   }
