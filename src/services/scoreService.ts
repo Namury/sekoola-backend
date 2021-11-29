@@ -1,4 +1,5 @@
 import { prisma } from "$utils/prisma.utils";
+import { Decimal } from "@prisma/client/runtime";
 import { v4 as uuidv4 } from "uuid";
 
 export async function createScoreConfigService(
@@ -206,6 +207,29 @@ export async function createStudentScoreService(
   studentId: number
 ): Promise<any> {
   try {
+    const findStudentScore = await prisma.studentScore.findUnique({
+      where: {
+        studentId_scoreId: {
+          studentId,
+          scoreId,
+        },
+      },
+    });
+    if (findStudentScore != null) {
+      const updatedStudentScore = await prisma.studentScore.update({
+        where: {
+          studentId_scoreId: {
+            scoreId,
+            studentId,
+          },
+        },
+        data: {
+          score,
+        },
+      });
+
+      return { status: true, scoreResult: updatedStudentScore };
+    }
     const createdStudentScore = await prisma.studentScore.create({
       data: {
         score,
@@ -274,19 +298,60 @@ export async function getScoreDetailByScoreIdService(scoreId: string) {
       include: {
         Student: true,
         Class: {
-          select: {
-            name: true,
-            id: true,
-            uuid: true,
-          },
           include: {
-            Student: true,
+            Student: {
+              orderBy: {
+                name: "asc",
+              },
+            },
           },
         },
       },
     });
 
-    return { status: true, scoreDetail };
+    if (scoreDetail != null) {
+      const scoreStatus = await scoreStat(scoreDetail.id);
+      const scoreCount = await belowAverageCount(
+        scoreStatus._avg.score,
+        scoreDetail.id
+      );
+      const mappedScoreDetail = {
+        scoreId: scoreDetail.id,
+        scoreUuid: scoreDetail.uuid,
+        scoreName: scoreDetail.name,
+        average: scoreStatus._avg.score,
+        maximum: scoreStatus._max.score,
+        minimum: scoreStatus._min.score,
+        belowAverageCount: scoreCount,
+      };
+      const mappedStudentDetail = await Promise.all(
+        scoreDetail.Class.Student.map(async (studentDet) => {
+          const studentScore = await getStudentScore(
+            scoreDetail.id,
+            studentDet.id
+          );
+          if (studentScore != null) {
+            return {
+              studentId: studentDet.id,
+              studentUuid: studentDet.uuid,
+              studentName: studentDet.name,
+              score: studentScore.score,
+            };
+          }
+          return {
+            studentId: studentDet.id,
+            studentUuid: studentDet.uuid,
+            studentName: studentDet.name,
+            score: null,
+          };
+        })
+      );
+      return {
+        status: true,
+        scoreDetail: { mappedScoreDetail, mappedStudentDetail },
+      };
+    }
+    return { status: false, error: "Unable to get score detail" };
   } catch (err: any) {
     return { status: false, error: String(err) };
   }
@@ -309,6 +374,33 @@ async function scoreStat(scoreId: number) {
   });
 }
 
+async function belowAverageCount(average: Decimal | null, scoreId: number) {
+  if (average != null) {
+    return await prisma.studentScore.count({
+      where: {
+        scoreId,
+        score: {
+          lt: average,
+        },
+      },
+    });
+  }
+  return null;
+}
+
+async function getStudentScore(scoreId: number, studentId: number) {
+  return await prisma.studentScore.findUnique({
+    where: {
+      studentId_scoreId: {
+        studentId,
+        scoreId,
+      },
+    },
+    select: {
+      score: true,
+    },
+  });
+}
 export async function getScoreDetailByClassIdService(
   classId: string,
   courseId: string

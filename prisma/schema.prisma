@@ -136,7 +136,7 @@ model Score {
 }
 
 model StudentScore {
-  score         Int     @default(0)
+  score         Decimal     @default(0)
   Student       Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId     Int
   Score         Score   @relation(fields: [scoreId], references: [id], onDelete: Cascade)
