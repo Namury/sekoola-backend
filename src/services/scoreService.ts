@@ -296,6 +296,7 @@ export async function getScoreDetailByScoreIdService(scoreId: string) {
     const scoreDetail = await prisma.score.findUnique({
       where: { uuid: scoreId },
       include: {
+        ScoreConfig: true,
         Student: true,
         Class: {
           include: {
@@ -311,18 +312,24 @@ export async function getScoreDetailByScoreIdService(scoreId: string) {
 
     if (scoreDetail != null) {
       const scoreStatus = await scoreStat(scoreDetail.id);
-      const scoreCount = await belowAverageCount(
+      const belowAverage = await belowAverageCount(
         scoreStatus._avg.score,
+        scoreDetail.id
+      );
+      const belowKkm = await belowKkmCount(
+        scoreDetail.ScoreConfig.minimumScore,
         scoreDetail.id
       );
       const mappedScoreDetail = {
         scoreId: scoreDetail.id,
         scoreUuid: scoreDetail.uuid,
         scoreName: scoreDetail.name,
+        kkm: scoreDetail.ScoreConfig.minimumScore,
         average: scoreStatus._avg.score,
         maximum: scoreStatus._max.score,
         minimum: scoreStatus._min.score,
-        belowAverageCount: scoreCount,
+        belowAverageCount: belowAverage,
+        belowKkmCount: belowKkm,
       };
       const mappedStudentDetail = await Promise.all(
         scoreDetail.Class.Student.map(async (studentDet) => {
@@ -381,6 +388,20 @@ async function belowAverageCount(average: Decimal | null, scoreId: number) {
         scoreId,
         score: {
           lt: average,
+        },
+      },
+    });
+  }
+  return null;
+}
+
+async function belowKkmCount(kkm: number | null, scoreId: number) {
+  if (kkm != null) {
+    return await prisma.studentScore.count({
+      where: {
+        scoreId,
+        score: {
+          lt: kkm,
         },
       },
     });
