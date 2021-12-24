@@ -17,6 +17,8 @@ const allowedOrigins = [
   "https://sekoola-fe.vercel.app/",
   "https://https://sekoola-backend.herokuapp.com",
   "https://https://sekoola-backend.herokuapp.com/",
+  "https://sekoola.vercel.app/",
+  "https://sekoola.vercel.app",
 ];
 
 const options: cors.CorsOptions = {
