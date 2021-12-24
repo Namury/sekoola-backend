@@ -256,10 +256,11 @@ export async function createMassStudentService(
   try {
     const csvParsed = await csv().fromString(studentCsv.buffer.toString());
     const createdStudent: StudentData[] = [];
+    var usedNISN = 0
     if (csvParsed.length > 0) {
       csvParsed.forEach(async (student) => {
 
-        const usedNISN = await prisma.student.count({
+        usedNISN = await prisma.student.count({
           where: {
             NISN: student.nisn,
           },
@@ -277,6 +278,9 @@ export async function createMassStudentService(
             return { status: false, error: "NISN Siswa ada yang telah terdaftar" };
         }
       });
+      if(usedNISN != 0){
+        return { status: false, error: "NISN Siswa ada yang telah terdaftar" };
+      }
       return { status: true, createdStudent };
     } else {
       return { status: false, error: "Unable to upload student data" };
