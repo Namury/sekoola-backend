@@ -87,6 +87,16 @@ export async function userRegisterSekolahService(
       schoolId: true,
     };
 
+    const findSchool = await prisma.school.findFirst({
+      where:{
+        name:user.name
+      }
+    })
+
+    if(findSchool){
+      return { status: false, error: { message: "School Already Exist" } };
+    }
+
     const selectedSchoolField = { id: true, name: true };
     const createdSchool = await prisma.school.create({
       data: {

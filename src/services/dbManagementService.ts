@@ -97,14 +97,24 @@ export async function createCourseService(
   gradeId: number
 ): Promise<any> {
   try {
-    const createdCourse = await prisma.rootCourse.create({
-      data: {
+    const findCourse = await prisma.rootCourse.findFirst({
+      where: {
         name,
-        gradeId,
-        uuid: uuidv4(),
-      },
-    });
-    return { status: true, course: createdCourse };
+        gradeId
+      }
+    })
+    if(!findCourse){
+      const createdCourse = await prisma.rootCourse.create({
+        data: {
+          name,
+          gradeId,
+          uuid: uuidv4(),
+        },
+      });
+      return { status: true, course: createdCourse };
+    } else {
+      return { status: false, error: "Course Already Exist" };
+    }
   } catch (err: any) {
     return { status: false, error: "Unable to get create Course" };
   }
@@ -305,6 +315,7 @@ interface RegisterGuruObject {
   NIP: string;
   schoolId: number;
 }
+
 export async function teacherRegistrationService(
   user: RegisterGuruObject,
   courses: CourseData[]
@@ -315,6 +326,17 @@ export async function teacherRegistrationService(
       name: true,
       NIP: true,
     };
+
+    const findNIPTeacher = await prisma.profileTeacher.findFirst({
+      where:{
+        NIP: user.NIP
+      }
+    })
+
+    if(findNIPTeacher){
+      return { status: false, error: "NIP Already exist" };
+    }
+
     const createdTeacher = await prisma.profileTeacher.create({
       data: {
         uuid: uuidv4(),
