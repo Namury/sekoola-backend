@@ -25,10 +25,11 @@ export async function login(req: Request, res: Response): Promise<Response> {
 export async function registerSekolah(req: Request, res: Response) {
   const { user, status, token, error, school } =
     await userRegisterSekolahService(req.body);
+
   if (status) {
     return response_success(res, { user, token, school });
   } else {
-    throw new Error(error);
+    return response_internal_server_error(res, error);
   }
 }
 
@@ -39,7 +40,7 @@ export async function registerGuru(req: Request, res: Response) {
   if (status) {
     return response_success(res, { user, token, teacher });
   } else {
-    throw new Error(error);
+    return response_internal_server_error(res, error);
   }
 }
 
