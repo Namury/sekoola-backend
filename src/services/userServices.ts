@@ -87,6 +87,17 @@ export async function userRegisterSekolahService(
       schoolId: true,
     };
 
+    const findEmail = await prisma.user.findFirst({
+      where:{
+        email:user.email
+      }
+    })
+
+    if(findEmail){
+      return { status: false, error: "Email Already Exist" };
+    }
+
+
     const findSchool = await prisma.school.findFirst({
       where:{
         name:user.name
@@ -94,7 +105,7 @@ export async function userRegisterSekolahService(
     })
 
     if(findSchool){
-      return { status: false, error: { message: "School Already Exist" } };
+      return { status: false, error: "School Already Exist" };
     }
 
     const selectedSchoolField = { id: true, name: true };
@@ -120,7 +131,7 @@ export async function userRegisterSekolahService(
 
     return { status: true, user: createdUser, school: createdSchool, token };
   } catch (err: any) {
-    return { status: false, error: { message: "Register Failed" } };
+    return { status: false, error: "Register Failed" };
   }
 }
 
@@ -169,7 +180,7 @@ export async function userRegisterGuruService(
 
     return { status: true, user: createdUser, teacher: createdTeacher, token };
   } catch (err: any) {
-    return { status: false, error: { message: "Register Failed" } };
+    return { status: false, error: "Register Failed" };
   }
 }
 
