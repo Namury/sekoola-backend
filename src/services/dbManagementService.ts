@@ -259,16 +259,6 @@ export async function createMassStudentService(
     if (csvParsed.length > 0) {
       csvParsed.forEach(async (student) => {
 
-        const findNISN = await prisma.student.findFirst({
-          where: {
-            NISN: student.nisn,
-          },
-        });
-
-        if(findNISN){
-          return { status: false, error: "NISN Siswa telah ada yang terdaftar" };
-        }
-
         const usedNISN = await prisma.student.count({
           where: {
             NISN: student.nisn,
@@ -283,6 +273,8 @@ export async function createMassStudentService(
             },
           });
           createdStudent.push(singleCreated);
+        } else {
+            return { status: false, error: "NISN Siswa ada yang telah terdaftar" };
         }
       });
       return { status: true, createdStudent };

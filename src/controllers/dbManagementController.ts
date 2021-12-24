@@ -245,10 +245,11 @@ export async function createMassStudent(
     Number(classId),
     studentCsv
   );
-  if (!status) {
+  if (status) {
+    return response_success(res, { createdStudent });
+  } else{
     return response_internal_server_error(res, error);
   }
-  return response_success(res, { createdStudent });
 }
 
 export async function getStudentByClass(
